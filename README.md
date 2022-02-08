@@ -1,28 +1,108 @@
-# Models:
-There are 2 models in this Schema 1: Author Model & 2: Blog Model as per the structure provided.
+# Project - Open to Intern  
 
-# Route - Step to create the Author model and Blog Model
-1. /BASE_URL/authors' = This would be post API to create the author.
-2. '/blogs'= This would be post API to create the blog.
-3. /update/blogId/:id' = This PUT API helps to update the elements in the blog document.
-4. /delete/blogId/:id = This GET API helps to delete the blog document as per the blog ID provided.
-5. /deleteSpecific = This GET API help to delete the blog document as per specific input fields like category, tag name etc. This would act as an alternative to the  /delete/blogId/:id if user forgets the blog ID.
-6. /login = This POST API helps to logs the user to the website after validation.
-
-Note: Each of the models has 5 documents each in the database.
-
-# Controller:
-There are 2 controller in this project as below.
-1. AuthorController : We have a one function inside called "createAuthor", which creates the author details in our database.
-2. BlogController: We have 5 functions inside this controller, which performs the following CRUD operations.
-    - myBlogCreation : This function helps to create the blog document inside our database after author validation.
-    - returnBlogsFiltered: This function helps to return as per filter inputted by the user which are not deleted and are published.
-    - updateData: This function help to update existing blog documents fields like title, body, tags etc according to user input after authorization.
-    - deleteBlog: This function help to flag a blog document as true as per the blog ID input provided by the user after authorization.
-    - deleteSpecific: This function help to flag a blog document as true which are not published as per the specific fields like category, authorid, tag name inputted by the user.
-3. LoginController: We have 1 function inside this controller, which enables the user to login.
-    - logIn: This function validates the user by its email and password and sends an encrypted token to the front end system.
-
-# Midlleware:
-We have 1 validation middleware.
-1. validation: This function helps in decoding the token received from the request header and authenticates the user and also sends the decoded user ID to the next controller for authorisation.
+### Key points
+- Create a group database `groupXDatabase`. You can clean the db you previously used and resue that.
+- This time each group should have a *single git branch*. Coordinate amongst yourselves by ensuring every next person pulls the code last pushed by a team mate. You branch will be checked as part of the demo. Branch name should follow the naming convention `project/internshipGroupX`
+- Follow the naming conventions exactly as instructed. The backend code will be integrated with the front-end application which means any mismatch in the expected request body will lead to failure in successful integration.
+### Models
+- College Model
+```
+{ name: { mandatory, unique, example iith}, fullName: {mandatory, example `Indian Institute of Technology, Hyderabad`}, logoLink: {mandatory}, isDeleted: {boolean, default: false} }
+```
+- Intern Model
+```
+{ name: {mandatory}, email: {mandatory, valid email, unique}, mobile: {mandatory, valid mobile number, unique}, collegeId: {ObjectId, ref to college model, isDeleted: {boolean, default: false}}
+```
+### POST /functionup/colleges
+- Create a college - a document for each member of the group
+- The logo link will be provided to you by the mentors. This link is a s3 (Amazon's Simple Service) url. Try accessing the link to see if the link is public or not.
+  `Endpoint: BASE_URL/functionup/colleges`
+### POST /functionup/interns
+- Create a document for an intern. 
+- Also save the collegeId along with the document. Your request body contains the following fields - { name, mobile, email, collegeName}
+- Return HTTP status 201 on a succesful document creation. Also return the document. The response should be a JSON object like [this](#successful-response-structure) 
+- Return HTTP status 400 for an invalid request with a response body like [this](#error-response-structure)
+### GET /functionup/collegeDetails
+- Returns the college details for the requested college (Expect a query parameter by the name `collegeName`. This is anabbreviated college name. For example `iith`)
+- Returns the list of all interns who have applied for internship at this college.
+- The response structure should look like [this](#college-details)
+## Testing 
+- To test these apis create a new collection in Postman named Project 2 Internship
+- Each api should have a new request in this collection
+- Each request in the collection should be rightly named. Eg Create college, Get college details etc
+- Each member of each team should have their tests in running state
+Refer below sample
+ ![A Postman collection and request sample](assets/Postman-collection-sample.png)
+## Response
+### Successful Response structure
+```yaml
+{
+  status: true,
+  data: {
+  }
+}
+```
+### Error Response structure
+```yaml
+{
+  status: false,
+  message: ""
+}
+```
+## Collections samples
+#### College
+```yaml
+{
+    "name" : "iith",
+    "fullName" : "Indian Institute of Technology, Hyderabad",
+    "logoLink" : "https://functionup.s3.ap-south-1.amazonaws.com/colleges/iith.png",
+    "isDeleted" : false
+}
+```
+#### Intern
+```yaml
+   {
+    "isDeleted" : false,
+    "name" : "Jane Does",
+    "email" : "jane.doe@iith.in",
+    "mobile" : "90000900000",
+    "collegeId" : ObjectId("888771129c9ea621dc7f5e3b")
+}
+```
+## Response samples
+### College details
+```yaml
+{
+  "data": {
+    "name": "xyz",
+    "fullName": "Some Institute of Engineering and Technology",
+    "logoLink": "some public s3 link for a college logo",
+    "interests": [
+      {
+        "_id": "123a47301a53ecaeea02be59",
+        "name": "Jane Doe",
+        "email": "jane.doe@miet.ac.in",
+        "mobile": "8888888888"
+      },
+      {
+        "_id": "45692c0e1a53ecaeea02b1ac",
+        "name": "John Doe",
+        "email": "john.doe@miet.ac.in",
+        "mobile": "9999999999"
+      },
+      {
+        "_id": "7898d0251a53ecaeea02a623",
+        "name": "Sukruti",
+        "email": "dummy.email@miet.ac.in",
+        "mobile": "9191919191"
+      },
+      {
+        "_id": "999803da1a53ecaeea02a07e",
+        "name": "Neeraj Kumar",
+        "email": "another.example@miet.ac.in",
+        "mobile": "9898989898"
+      }
+    ]
+  }
+}
+```
